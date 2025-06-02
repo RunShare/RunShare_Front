@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>러닝 코스 앱 - 프론트엔드 전용</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #f5f7fa; }
+        
+        /* 헤더 및 네비게이션 */
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .logo { font-size: 24px; font-weight: bold; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info span { font-size: 14px; }
+        .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn-primary { background: #4285f4; color: white; }
+        .btn-primary:hover { background: #3367d6; }
+        .btn-secondary { background: white; color: #667eea; }
+        .btn-secondary:hover { background: #f8f9fa; }
+        .btn-danger { background: #ea4335; color: white; }
+        .btn-danger:hover { background: #d33b2c; }
+        .btn-success { background: #34a853; color: white; }
+        .btn-success:hover { background: #2d7a40; }
+        
+        /* 네비게이션 메뉴 */
+        .nav-menu { background: white; border-bottom: 1px solid #e9ecef; }
+        .nav-content { max-width: 1200px; margin: 0 auto; display: flex; gap: 0; }
+        .nav-item { padding: 15px 20px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .nav-item:hover { background: #f8f9fa; }
+        .nav-item.active { border-bottom-color: #4285f4; background: #e3f2fd; color: #1976d2; }
+        
+        /* 메인 컨테이너 */
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .screen { display: none; animation: fadeIn 0.3s ease-in; }
+        .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 폼 스타일 */
+        .form-container { max-width: 400px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; color: #333; }
+        .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .form-control:focus { outline: none; border-color: #4285f4; box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2); }
+        
+        /* 카드 스타일 */
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card h3 { color: #333; margin-bottom: 15px; }
+        
+        /* 지도 스타일 */
+        #map { height: 500px; width: 100%; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        
+        /* 컨트롤 패널 */
+        .controls { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .controls .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+        .controls .row:last-child { margin-bottom: 0; }
+        
+        /* 코스 목록 */
+        .course-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .course-item { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: transform 0.2s; }
+        .course-item:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .course-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px; }
+        .course-title { font-size: 18px; font-weight: bold; color: #333; }
+        .difficulty-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .difficulty-1 { background: #e8f5e8; color: #2e7d32; }
+        .difficulty-2 { background: #fff3e0; color: #f57c00; }
+        .difficulty-3 { background: #fff8e1; color: #f9a825; }
+        .difficulty-4 { background: #fce4ec; color: #c2185b; }
+        .difficulty-5 { background: #ffebee; color: #d32f2f; }
+        .course-info { color: #666; font-size: 14px; margin-bottom: 15px; }
+        .course-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        /* 검색 필터 */
+        .search-filters { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .filter-row { display: flex; gap: 15px; align-items: center; margin-bottom: 15px; flex-wrap: wrap; }
+        .filter-row:last-child { margin-bottom: 0; }
+        
+        /* 통계 표시 */
+        .stats { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .stats h2 { margin-bottom: 10px; }
+        
+        /* 로딩 */
+        .loading { text-align: center; padding: 40px; color: #666; }
+        .loading::after { content: '⟳'; display: inline-block; animation: spin 1s linear infinite; margin-left: 10px; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* 알림 */
+        .alert { padding: 12px 16px; border-radius: 6px; margin-bottom: 15px; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .alert-warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        
+        /* 인포박스 */
+        .info-box { background: #e3f2fd; border: 1px solid #2196f3; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .info-box h4 { color: #1976d2; margin-bottom: 10px; }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .header-content { flex-direction: column; gap: 10px; }
+            .nav-content { flex-wrap: wrap; }
+            .controls .row { flex-direction: column; align-items: stretch; }
+            .course-list { grid-template-columns: 1fr; }
+            .filter-row { flex-direction: column; align-items: stretch; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">🏃‍♂️ 러닝 코스 앱</div>
+            <div class="user-info" id="userInfo">
+                <span id="userDisplay">로그인이 필요합니다</span>
+                <button class="btn btn-secondary" id="authBtn" onclick="showLogin()">로그인</button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- 네비게이션 (로그인 후 표시) -->
+    <nav class="nav-menu" id="navMenu" style="display: none;">
+        <div class="nav-content">
+            <div class="nav-item" onclick="showScreen('draw')">🗺️ 코스 그리기</div>
+            <div class="nav-item" onclick="showScreen('myCourses')">📋 내 코스</div>
+            <div class="nav-item" onclick="showScreen('search')">🔍 코스 검색</div>
+            <div class="nav-item" onclick="showScreen('gpxDownload')">📁 GPX 관리</div>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <!-- 메인 화면 (로그인/회원가입) -->
+        <div id="loginScreen" class="screen active">
+            <div class="info-box">
+                <h4>🎉 프론트엔드 전용 버전</h4>
+                <p>서버 없이 브라우저 로컬 저장소만 사용합니다. 모든 데이터는 브라우저에 저장되며, 다른 기기에서는 접근할 수 없습니다.</p>
+                <p><strong>⚡ 즉시 사용 가능!</strong> 설치나 서버 설정이 필요 없습니다.</p>
+            </div>
+            
+            <div class="form-container">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #333;">로그인</h2>
+                <div id="loginAlert"></div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>사용자명</label>
+                        <input type="text" class="form-control" id="loginUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>비밀번호</label>
+                        <input type="password" class="form-control" id="loginPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 15px;">로그인</button>
+                </form>
+                <div style="text-align: center;">
+                    <span>계정이 없으신가요? </span>
+                    <a href="#" onclick="showRegister()" style="color: #4285f4; text-decoration: none;">회원가입</a>
+                </div>
+                
+                <!-- 데모 계정 -->
+                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; text-align: center;">
+                    <h4 style="margin-bottom: 10px;">🎯 빠른 테스트</h4>
+                    <button class="btn btn-success" onclick="createDemoAccount()">데모 계정 생성 & 로그인</button>
+                    <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                        샘플 사용자와 코스 데이터를 자동으로 생성합니다
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 회원가입 화면 -->
+        <div id="registerScreen" class="screen">
+            <div class="form-container">
+                <h2 style="text-align: center; margin-bottom: 30px; color: #333;">회원가입</h2>
+                <div id="registerAlert"></div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>사용자명</label>
+                        <input type="text" class="form-control" id="regUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>비밀번호</label>
+                        <input type="password" class="form-control" id="regPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>이메일</label>
+                        <input type="email" class="form-control" id="regEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>닉네임</label>
+                        <input type="text" class="form-control" id="regNickname" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-bottom: 15px;">회원가입</button>
+                </form>
+                <div style="text-align: center;">
+                    <span>이미 계정이 있으신가요? </span>
+                    <a href="#" onclick="showLogin()" style="color: #4285f4; text-decoration: none;">로그인</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 코스 그리기 화면 -->
+        <div id="drawScreen" class="screen">
+            <div class="card">
+                <h3>🗺️ 새 코스 그리기</h3>
+                <div class="controls">
+                    <div class="row">
+                        <button id="drawModeBtn" class="btn btn-primary" onclick="setDrawMode(true)">✏️ 그리기 모드</button>
+                        <button id="viewModeBtn" class="btn btn-secondary" onclick="setDrawMode(false)">👁️ 보기 모드</button>
+                        <button class="btn btn-secondary" onclick="getCurrentLocation()">📍 내 위치로</button>
+                        <button class="btn btn-danger" onclick="clearPath()">🗑️ 경로 지우기</button>
+                        <button class="btn btn-secondary" onclick="undoLastPoint()">↶ 되돌리기</button>
+                    </div>
+                    <div class="row">
+                        <input type="text" class="form-control" id="courseName" placeholder="코스 이름" style="flex: 1;">
+                        <input type="text" class="form-control" id="courseDescription" placeholder="코스 설명 (선택사항)" style="flex: 2;">
+                        <select class="form-control" id="courseDifficulty">
+                            <option value="1">쉬움</option>
+                            <option value="2">보통</option>
+                            <option value="3" selected>중간</option>
+                            <option value="4">어려움</option>
+                            <option value="5">매우 어려움</option>
+                        </select>
+                        <label><input type="checkbox" id="coursePublic" checked> 공개</label>
+                        <button class="btn btn-primary" onclick="saveCourse()">💾 저장</button>
+                    </div>
+                </div>
+                <div class="stats" id="drawStats">지도를 클릭해서 경로를 그려보세요! 🗺️</div>
+                <div id="map"></div>
+            </div>
+        </div>
+        
+        <!-- 내 코스 화면 -->
+        <div id="myCoursesScreen" class="screen">
+            <div class="card">
+                <h3>📋 내 코스 목록</h3>
+                <div class="controls">
+                    <div class="row">
+                        <label>정렬:</label>
+                        <select class="form-control" id="mySortBy" onchange="loadMyCourses()" style="width: 150px;">
+                            <option value="date">최신순</option>
+                            <option value="distance">거리순</option>
+                            <option value="difficulty">난이도순</option>
+                            <option value="name">이름순</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="loadMyCourses()">🔄 새로고침</button>
+                        <span style="margin-left: auto; color: #666;" id="myCoursesCount"></span>
+                    </div>
+                </div>
+                <div id="myCoursesContent">
+                    <div class="loading">내 코스를 불러오는 중...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 코스 검색 화면 -->
+        <div id="searchScreen" class="screen">
+            <div class="card">
+                <h3>🔍 공개 코스 검색</h3>
+                <div class="search-filters">
+                    <div class="filter-row">
+                        <label>난이도:</label>
+                        <select class="form-control" id="searchDifficulty" style="width: 120px;">
+                            <option value="">전체</option>
+                            <option value="1">쉬움</option>
+                            <option value="2">보통</option>
+                            <option value="3">중간</option>
+                            <option value="4">어려움</option>
+                            <option value="5">매우 어려움</option>
+                        </select>
+                        
+                        <label>거리 (km):</label>
+                        <input type="number" class="form-control" id="searchMinDistance" placeholder="최소" style="width: 80px;" min="0" step="0.1">
+                        <span>~</span>
+                        <input type="number" class="form-control" id="searchMaxDistance" placeholder="최대" style="width: 80px;" min="0" step="0.1">
+                        
+                        <button class="btn btn-primary" onclick="searchCourses()">🔍 검색</button>
+                    </div>
+                    <div class="filter-row">
+                        <label>내 위치 근처 (반경 km):</label>
+                        <input type="number" class="form-control" id="searchRadius" placeholder="10" value="10" style="width: 80px;" min="1" max="100">
+                        <button class="btn btn-secondary" onclick="searchNearby()">📍 내 위치 기준 검색</button>
+                        <span style="margin-left: auto; color: #666;" id="searchResultsCount"></span>
+                    </div>
+                </div>
+                <div id="searchResults">
+                    <p style="text-align: center; color: #666; padding: 40px;">검색 조건을 설정하고 검색 버튼을 눌러주세요.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 코스 상세 화면 -->
+        <div id="detailScreen" class="screen">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 id="detailTitle">코스 상세 정보</h3>
+                    <button class="btn btn-secondary" onclick="goBack()">← 뒤로가기</button>
+                </div>
+                <div id="detailInfo"></div>
+                <div id="detailMap" style="height: 400px; border-radius: 8px; margin-top: 20px;"></div>
+            </div>
+        </div>
+        
+        <!-- GPX 다운로드 화면 -->
+        <div id="gpxDownloadScreen" class="screen">
+            <div class="card">
+                <h3>📁 GPX 파일 관리</h3>
+                <div class="info-box">
+                    <h4>GPX 파일이란?</h4>
+                    <p>GPS 데이터를 표준 형식으로 저장한 파일입니다. Strava, Nike Run Club, 가민 등의 러닝 앱에서 가져와서 사용할 수 있습니다.</p>
+                </div>
+                <div class="controls">
+                    <div class="row">
+                        <button class="btn btn-primary" onclick="loadGpxList()">🔄 내 코스 목록 새로고침</button>
+                        <button class="btn btn-success" onclick="downloadAllGPX()">📦 모든 코스 일괄 다운로드</button>
+                        <span style="margin-left: auto; color: #666;" id="gpxListCount"></span>
+                    </div>
+                </div>
+                <div id="gpxList">
+                    <div class="loading">내 코스를 불러오는 중...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 전역 변수
+        let currentUser = null;
+        let map = null;
+        let currentPath = [];
+        let currentPolyline = null;
+        let markers = [];
+        let isDrawMode = true;
+        let lastScreen = 'draw';
+        
+        // 로컬 스토리지 키
+        const STORAGE_KEYS = {
+            USERS: 'running_app_users',
+            COURSES: 'running_app_courses',
+            CURRENT_USER: 'running_app_current_user'
+        };
+        
+        // 로컬 스토리지 헬퍼 함수들
+        function getFromStorage(key) {
+            try {
+                return JSON.parse(localStorage.getItem(key)) || [];
+            } catch {
+                return [];
+            }
+        }
+        
+        function saveToStorage(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+        
+        function generateId() {
+            return Date.now() + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // 거리 계산 함수 (하버사인 공식)
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371e3; // 지구 반지름 (미터)
+            const φ1 = lat1 * Math.PI/180;
+            const φ2 = lat2 * Math.PI/180;
+            const Δφ = (lat2-lat1) * Math.PI/180;
+            const Δλ = (lng2-lng1) * Math.PI/180;
+
+            const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ/2) * Math.sin(Δλ/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+            return R * c;
+        }
+        
+        // 화면 전환
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(s => s.classList.remove('active'));
+            
+            document.getElementById(screenName + 'Screen').classList.add('active');
+            
+            // 네비게이션 활성화
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach((item, index) => {
+                const screens = ['draw', 'myCourses', 'search', 'gpxDownload'];
+                if (screens[index] === screenName) {
+                    item.classList.add('active');
+                }
+            });
+            
+            if (screenName === 'draw' && !map) {
+                setTimeout(initMap, 100);
+            } else if (screenName === 'myCourses') {
+                loadMyCourses();
+            } else if (screenName === 'search') {
+                searchCourses();
+            } else if (screenName === 'gpxDownload') {
+                loadGpxList();
+            }
+            
+            lastScreen = screenName;
+        }
+        
+        function goBack() {
+            showScreen(lastScreen);
+        }
+        
+        // 로그인/회원가입 화면 전환
+        function showLogin() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('loginScreen').classList.add('active');
+        }
+        
+        function showRegister() {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('registerScreen').classList.add('active');
+        }
+        
+        // 알림 표시
+        function showAlert(containerId, message, type = 'success') {
+            const container = document.getElementById(containerId);
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => container.innerHTML = '', 5000);
+        }
+        
+        // 데모 계정 생성
+        function createDemoAccount() {
+            const users = getFromStorage(STORAGE_KEYS.USERS);
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            
+            // 데모 사용자들 생성
+            const demoUsers = [
+                { id: 'demo1', username: 'runner1', password: '1234', email: 'runner1@example.com', nickname: '러닝마스터', createdAt: new Date().toISOString() },
+                { id: 'demo2', username: 'runner2', password: '1234', email: 'runner2@example.com', nickname: '조깅러버', createdAt: new Date().toISOString() },
+                { id: 'demo3', username: 'runner3', password: '1234', email: 'runner3@example.com', nickname: '마라토너', createdAt: new Date().toISOString() }
+            ];
+            
+            // 기존 데모 사용자 제거 후 추가
+            const filteredUsers = users.filter(u => !u.id.startsWith('demo'));
+            const newUsers = [...filteredUsers, ...demoUsers];
+            saveToStorage(STORAGE_KEYS.USERS, newUsers);
+            
+            // 데모 코스들 생성 (서울 시내 실제 러닝 코스들)
+            const demoCourses = [
+                {
+                    id: 'course1',
+                    userId: 'demo1',
+                    name: '한강공원 러닝코스',
+                    description: '한강공원 반포지구 ~ 잠원지구 왕복 코스입니다. 강바람이 시원해요!',
+                    distance: 5200,
+                    difficulty: 2,
+                    isPublic: true,
+                    centerLat: 37.5169,
+                    centerLng: 127.0286,
+                    createdAt: new Date(Date.now() - 86400000).toISOString(), // 1일 전
+                    points: [
+                        { lat: 37.5133, lng: 127.0253 },
+                        { lat: 37.5156, lng: 127.0275 },
+                        { lat: 37.5182, lng: 127.0298 },
+                        { lat: 37.5205, lng: 127.0321 },
+                        { lat: 37.5182, lng: 127.0298 },
+                        { lat: 37.5156, lng: 127.0275 },
+                        { lat: 37.5133, lng: 127.0253 }
+                    ]
+                },
+                {
+                    id: 'course2',
+                    userId: 'demo2',
+                    name: '남산순환로',
+                    description: '남산타워 주변을 도는 힐링 코스입니다. 경사가 있어서 운동 효과 좋아요!',
+                    distance: 3800,
+                    difficulty: 4,
+                    isPublic: true,
+                    centerLat: 37.5512,
+                    centerLng: 126.9882,
+                    createdAt: new Date(Date.now() - 172800000).toISOString(), // 2일 전
+                    points: [
+                        { lat: 37.5505, lng: 126.9909 },
+                        { lat: 37.5519, lng: 126.9912 },
+                        { lat: 37.5533, lng: 126.9889 },
+                        { lat: 37.5521, lng: 126.9855 },
+                        { lat: 37.5503, lng: 126.9862 },
+                        { lat: 37.5498, lng: 126.9885 },
+                        { lat: 37.5505, lng: 126.9909 }
+                    ]
+                },
+                {
+                    id: 'course3',
+                    userId: 'demo3',
+                    name: '올림픽공원 벚꽃길',
+                    description: '올림픽공원 내 평화의 광장 주변 코스입니다. 봄에는 벚꽃이 예쁘고 평지라 편해요.',
+                    distance: 2500,
+                    difficulty: 1,
+                    isPublic: true,
+                    centerLat: 37.5219,
+                    centerLng: 127.1217,
+                    createdAt: new Date(Date.now() - 259200000).toISOString(), // 3일 전
+                    points: [
+                        { lat: 37.5201, lng: 127.1198 },
+                        { lat: 37.5227, lng: 127.1205 },
+                        { lat: 37.5239, lng: 127.1231 },
+                        { lat: 37.5225, lng: 127.1248 },
+                        { lat: 37.5205, lng: 127.1236 },
+                        { lat: 37.5201, lng: 127.1198 }
+                    ]
+                },
+                {
+                    id: 'course4',
+                    userId: 'demo1',
+                    name: '청계천 러닝',
+                    description: '청계천 광교 ~ 오간수교 구간입니다. 도심 속 자연을 느낄 수 있어요!',
+                    distance: 4100,
+                    difficulty: 2,
+                    isPublic: true,
+                    centerLat: 37.5688,
+                    centerLng: 126.9906,
+                    createdAt: new Date(Date.now() - 345600000).toISOString(), // 4일 전
+                    points: [
+                        { lat: 37.5701, lng: 126.9849 },
+                        { lat: 37.5692, lng: 126.9883 },
+                        { lat: 37.5683, lng: 126.9917 },
+                        { lat: 37.5674, lng: 126.9951 },
+                        { lat: 37.5683, lng: 126.9917 },
+                        { lat: 37.5692, lng: 126.9883 },
+                        { lat: 37.5701, lng: 126.9849 }
+                    ]
+                }
+            ];
+            
+            // 기존 데모 코스 제거 후 추가
+            const filteredCourses = courses.filter(c => !c.id.startsWith('course'));
+            const newCourses = [...filteredCourses, ...demoCourses];
+            saveToStorage(STORAGE_KEYS.COURSES, newCourses);
+            
+            // 첫 번째 데모 계정으로 자동 로그인
+            currentUser = demoUsers[0];
+            saveToStorage(STORAGE_KEYS.CURRENT_USER, currentUser);
+            updateUserDisplay();
+            showScreen('draw');
+            
+            showAlert('loginAlert', '데모 계정이 생성되고 로그인되었습니다! (아이디: runner1, 비밀번호: 1234)', 'success');
+        }
+        
+        // 로그인
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const users = getFromStorage(STORAGE_KEYS.USERS);
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                saveToStorage(STORAGE_KEYS.CURRENT_USER, currentUser);
+                updateUserDisplay();
+                showScreen('draw');
+                showAlert('loginAlert', '로그인 성공!', 'success');
+            } else {
+                showAlert('loginAlert', '잘못된 사용자명 또는 비밀번호입니다.', 'error');
+            }
+        });
+        
+        // 회원가입
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const email = document.getElementById('regEmail').value;
+            const nickname = document.getElementById('regNickname').value;
+            
+            const users = getFromStorage(STORAGE_KEYS.USERS);
+            
+            // 중복 검사
+            if (users.find(u => u.username === username)) {
+                showAlert('registerAlert', '이미 존재하는 사용자명입니다.', 'error');
+                return;
+            }
+            
+            if (users.find(u => u.email === email)) {
+                showAlert('registerAlert', '이미 존재하는 이메일입니다.', 'error');
+                return;
+            }
+            
+            // 새 사용자 생성
+            const newUser = {
+                id: generateId(),
+                username,
+                password,
+                email,
+                nickname,
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            saveToStorage(STORAGE_KEYS.USERS, users);
+            
+            showAlert('registerAlert', '회원가입 성공! 로그인해주세요.', 'success');
+            setTimeout(() => showLogin(), 2000);
+        });
+        
+        // 로그아웃
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+            updateUserDisplay();
+            showLogin();
+        }
+        
+        // 사용자 정보 업데이트
+        function updateUserDisplay() {
+            const userDisplay = document.getElementById('userDisplay');
+            const authBtn = document.getElementById('authBtn');
+            const navMenu = document.getElementById('navMenu');
+            
+            if (currentUser) {
+                userDisplay.textContent = `${currentUser.nickname}님 환영합니다!`;
+                authBtn.textContent = '로그아웃';
+                authBtn.className = 'btn btn-danger';
+                authBtn.onclick = logout;
+                navMenu.style.display = 'block';
+            } else {
+                userDisplay.textContent = '로그인이 필요합니다';
+                authBtn.textContent = '로그인';
+                authBtn.className = 'btn btn-secondary';
+                authBtn.onclick = showLogin;
+                navMenu.style.display = 'none';
+            }
+        }
+        
+        // 지도 초기화
+        function initMap() {
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 15,
+                center: { lat: 37.5665, lng: 126.9780 },
+                mapTypeId: 'roadmap'
+            });
+            
+            map.addListener("click", onMapClick);
+        }
+        
+        // 지도 클릭
+        function onMapClick(event) {
+            if (!isDrawMode) return;
+            
+            const point = {
+                lat: event.latLng.lat(),
+                lng: event.latLng.lng()
+            };
+            
+            currentPath.push(point);
+            
+            const marker = new google.maps.Marker({
+                position: point,
+                map: map,
+                title: `점 ${currentPath.length}`,
+                label: currentPath.length.toString(),
+                animation: google.maps.Animation.DROP
+            });
+            markers.push(marker);
+            
+            updatePolyline();
+            updateDrawStats();
+        }
+        
+        // 그리기 모드 설정
+        function setDrawMode(draw) {
+            isDrawMode = draw;
+            document.getElementById('drawModeBtn').className = draw ? 'btn btn-primary' : 'btn btn-secondary';
+            document.getElementById('viewModeBtn').className = draw ? 'btn btn-secondary' : 'btn btn-primary';
+        }
+        
+        // 폴리라인 업데이트
+        function updatePolyline() {
+            if (currentPolyline) {
+                currentPolyline.setMap(null);
+            }
+            
+            if (currentPath.length > 1) {
+                currentPolyline = new google.maps.Polyline({
+                    path: currentPath,
+                    geodesic: true,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 1.0,
+                    strokeWeight: 4,
+                });
+                currentPolyline.setMap(map);
+            }
+        }
+        
+        // 통계 업데이트
+        function updateDrawStats() {
+            const statsDiv = document.getElementById('drawStats');
+            if (currentPath.length === 0) {
+                statsDiv.innerHTML = "지도를 클릭해서 경로를 그려보세요! 🗺️";
+                return;
+            }
+            
+            let distance = 0;
+            for (let i = 1; i < currentPath.length; i++) {
+                distance += calculateDistance(
+                    currentPath[i-1].lat, currentPath[i-1].lng,
+                    currentPath[i].lat, currentPath[i].lng
+                );
+            }
+            
+            const pace = 6; // 1km당 6분
+            const estimatedTime = Math.round(distance/1000 * pace);
+            const estimatedCalories = Math.round(distance/1000 * 65);
+            
+            statsDiv.innerHTML = `
+                📍 점 개수: <strong>${currentPath.length}개</strong> | 
+                📏 총 거리: <strong>${(distance/1000).toFixed(2)}km</strong> |
+                ⏱️ 예상 시간: <strong>${estimatedTime}분</strong> |
+                🔥 예상 칼로리: <strong>${estimatedCalories}kcal</strong>
+            `;
+        }
+        
+        // 경로 지우기
+        function clearPath() {
+            currentPath = [];
+            
+            if (currentPolyline) {
+                currentPolyline.setMap(null);
+                currentPolyline = null;
+            }
+            
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+            
+            updateDrawStats();
+        }
+        
+        // 마지막 점 취소
+        function undoLastPoint() {
+            if (currentPath.length === 0) return;
+            
+            currentPath.pop();
+            
+            const lastMarker = markers.pop();
+            if (lastMarker) {
+                lastMarker.setMap(null);
+            }
+            
+            updatePolyline();
+            updateDrawStats();
+        }
+        
+        // 현재 위치
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    map.setCenter(pos);
+                    map.setZoom(16);
+                    
+                    // 현재 위치 마커
+                    new google.maps.Marker({
+                        position: pos,
+                        map: map,
+                        title: '현재 위치',
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 8,
+                            fillColor: '#4285f4',
+                            fillOpacity: 1,
+                            strokeColor: '#ffffff',
+                            strokeWeight: 2,
+                        }
+                    });
+                });
+            } else {
+                alert('GPS를 지원하지 않는 브라우저입니다.');
+            }
+        }
+        
+        // 코스 저장
+        function saveCourse() {
+            if (!currentUser) {
+                alert('로그인이 필요합니다.');
+                return;
+            }
+            
+            const name = document.getElementById('courseName').value.trim();
+            const description = document.getElementById('courseDescription').value.trim();
+            const difficulty = parseInt(document.getElementById('courseDifficulty').value);
+            const isPublic = document.getElementById('coursePublic').checked;
+            
+            if (!name) {
+                alert('코스 이름을 입력해주세요.');
+                return;
+            }
+            
+            if (currentPath.length < 2) {
+                alert('최소 2개 이상의 점이 필요합니다.');
+                return;
+            }
+            
+            // 거리 계산
+            let distance = 0;
+            for (let i = 1; i < currentPath.length; i++) {
+                distance += calculateDistance(
+                    currentPath[i-1].lat, currentPath[i-1].lng,
+                    currentPath[i].lat, currentPath[i].lng
+                );
+            }
+            
+            // 중심점 계산
+            const avgLat = currentPath.reduce((sum, p) => sum + p.lat, 0) / currentPath.length;
+            const avgLng = currentPath.reduce((sum, p) => sum + p.lng, 0) / currentPath.length;
+            
+            const newCourse = {
+                id: generateId(),
+                userId: currentUser.id,
+                name,
+                description,
+                distance,
+                difficulty,
+                isPublic,
+                centerLat: avgLat,
+                centerLng: avgLng,
+                createdAt: new Date().toISOString(),
+                points: currentPath.map(p => ({ lat: p.lat, lng: p.lng }))
+            };
+            
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            courses.push(newCourse);
+            saveToStorage(STORAGE_KEYS.COURSES, courses);
+            
+            alert(`"${name}" 코스가 저장되었습니다!`);
+            
+            // 폼 초기화
+            document.getElementById('courseName').value = '';
+            document.getElementById('courseDescription').value = '';
+            clearPath();
+        }
+        
+        // 내 코스 목록 로드
+        function loadMyCourses() {
+            if (!currentUser) return;
+            
+            const sortBy = document.getElementById('mySortBy').value;
+            const container = document.getElementById('myCoursesContent');
+            const countElement = document.getElementById('myCoursesCount');
+            
+            container.innerHTML = '<div class="loading">내 코스를 불러오는 중...</div>';
+            
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const myCourses = courses.filter(c => c.userId === currentUser.id);
+            
+            // 정렬
+            myCourses.sort((a, b) => {
+                switch (sortBy) {
+                    case 'distance':
+                        return a.distance - b.distance;
+                    case 'difficulty':
+                        return a.difficulty - b.difficulty;
+                    case 'name':
+                        return a.name.localeCompare(b.name);
+                    default: // date
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                }
+            });
+            
+            countElement.textContent = `총 ${myCourses.length}개 코스`;
+            
+            if (myCourses.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">저장된 코스가 없습니다. 코스를 만들어보세요!</p>';
+                return;
+            }
+            
+            const difficultyNames = ['', '쉬움', '보통', '중간', '어려움', '매우 어려움'];
+            
+            container.innerHTML = `<div class="course-list">${myCourses.map(course => `
+                <div class="course-item">
+                    <div class="course-header">
+                        <div class="course-title">${course.name}</div>
+                        <div class="difficulty-badge difficulty-${course.difficulty}">
+                            ${difficultyNames[course.difficulty]}
+                        </div>
+                    </div>
+                    <div class="course-info">
+                        📏 ${(course.distance/1000).toFixed(2)}km | 
+                        📅 ${new Date(course.createdAt).toLocaleDateString()} |
+                        📍 ${course.points.length}개 점 |
+                        ${course.isPublic ? '🌍 공개' : '🔒 비공개'}
+                    </div>
+                    <p style="margin: 10px 0; color: #666;">${course.description || '설명 없음'}</p>
+                    <div class="course-actions">
+                        <button class="btn btn-primary" onclick="viewCourse('${course.id}')">🗺️ 지도에서 보기</button>
+                        <button class="btn btn-success" onclick="downloadGPX('${course.id}')">📁 GPX 다운로드</button>
+                        <button class="btn btn-secondary" onclick="editCourse('${course.id}')">✏️ 수정</button>
+                        <button class="btn btn-danger" onclick="deleteCourse('${course.id}')">🗑️ 삭제</button>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+        
+        // 공개 코스 검색
+        function searchCourses() {
+            const container = document.getElementById('searchResults');
+            const countElement = document.getElementById('searchResultsCount');
+            
+            container.innerHTML = '<div class="loading">코스를 검색하는 중...</div>';
+            
+            const difficulty = document.getElementById('searchDifficulty').value;
+            const minDistance = parseFloat(document.getElementById('searchMinDistance').value) || 0;
+            const maxDistance = parseFloat(document.getElementById('searchMaxDistance').value) || Infinity;
+            
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const users = getFromStorage(STORAGE_KEYS.USERS);
+            
+            let results = courses.filter(course => {
+                if (!course.isPublic) return false;
+                if (difficulty && course.difficulty !== parseInt(difficulty)) return false;
+                
+                const distanceKm = course.distance / 1000;
+                if (distanceKm < minDistance || distanceKm > maxDistance) return false;
+                
+                return true;
+            });
+            
+            // 사용자 정보 추가
+            results = results.map(course => {
+                const user = users.find(u => u.id === course.userId);
+                return { ...course, user };
+            });
+            
+            // 최신순 정렬
+            results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            countElement.textContent = `${results.length}개 코스 발견`;
+            
+            if (results.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">검색 조건에 맞는 코스가 없습니다.</p>';
+                return;
+            }
+            
+            const difficultyNames = ['', '쉬움', '보통', '중간', '어려움', '매우 어려움'];
+            
+            container.innerHTML = `<div class="course-list">${results.map(course => `
+                <div class="course-item">
+                    <div class="course-header">
+                        <div class="course-title">${course.name}</div>
+                        <div class="difficulty-badge difficulty-${course.difficulty}">
+                            ${difficultyNames[course.difficulty]}
+                        </div>
+                    </div>
+                    <div class="course-info">
+                        📏 ${(course.distance/1000).toFixed(2)}km | 
+                        📅 ${new Date(course.createdAt).toLocaleDateString()} |
+                        👤 ${course.user?.nickname || '익명'}
+                    </div>
+                    <p style="margin: 10px 0; color: #666;">${course.description || '설명 없음'}</p>
+                    <div class="course-actions">
+                        <button class="btn btn-primary" onclick="viewCourse('${course.id}')">🗺️ 지도에서 보기</button>
+                        <button class="btn btn-success" onclick="downloadGPX('${course.id}')">📁 GPX 다운로드</button>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+        
+        // 위치 기반 검색
+        function searchNearby() {
+            if (!navigator.geolocation) {
+                alert('GPS를 지원하지 않는 브라우저입니다.');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const myLat = position.coords.latitude;
+                const myLng = position.coords.longitude;
+                const radiusKm = parseFloat(document.getElementById('searchRadius').value) || 10;
+                
+                const container = document.getElementById('searchResults');
+                const countElement = document.getElementById('searchResultsCount');
+                
+                container.innerHTML = '<div class="loading">근처 코스를 검색하는 중...</div>';
+                
+                const courses = getFromStorage(STORAGE_KEYS.COURSES);
+                const users = getFromStorage(STORAGE_KEYS.USERS);
+                
+                // 거리 계산 및 필터링
+                let results = courses
+                    .filter(course => course.isPublic)
+                    .map(course => {
+                        const distance = calculateDistance(myLat, myLng, course.centerLat, course.centerLng) / 1000; // km
+                        const user = users.find(u => u.id === course.userId);
+                        return { ...course, distanceFromMe: distance, user };
+                    })
+                    .filter(course => course.distanceFromMe <= radiusKm)
+                    .sort((a, b) => a.distanceFromMe - b.distanceFromMe);
+                
+                countElement.textContent = `반경 ${radiusKm}km 내 ${results.length}개 코스`;
+                
+                if (results.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">근처에 공개된 코스가 없습니다.</p>';
+                    return;
+                }
+                
+                const difficultyNames = ['', '쉬움', '보통', '중간', '어려움', '매우 어려움'];
+                
+                container.innerHTML = `<div class="course-list">${results.map(course => `
+                    <div class="course-item">
+                        <div class="course-header">
+                            <div class="course-title">${course.name}</div>
+                            <div class="difficulty-badge difficulty-${course.difficulty}">
+                                ${difficultyNames[course.difficulty]}
+                            </div>
+                        </div>
+                        <div class="course-info">
+                            📏 ${(course.distance/1000).toFixed(2)}km | 
+                            📍 거리: ${course.distanceFromMe.toFixed(1)}km |
+                            👤 ${course.user?.nickname || '익명'}
+                        </div>
+                        <p style="margin: 10px 0; color: #666;">${course.description || '설명 없음'}</p>
+                        <div class="course-actions">
+                            <button class="btn btn-primary" onclick="viewCourse('${course.id}')">🗺️ 지도에서 보기</button>
+                            <button class="btn btn-success" onclick="downloadGPX('${course.id}')">📁 GPX 다운로드</button>
+                        </div>
+                    </div>
+                `).join('')}</div>`;
+            });
+        }
+        
+        // 코스 상세 보기
+        function viewCourse(courseId) {
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const users = getFromStorage(STORAGE_KEYS.USERS);
+            const course = courses.find(c => c.id === courseId);
+            
+            if (!course) {
+                alert('코스를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const user = users.find(u => u.id === course.userId);
+            const difficultyNames = ['', '쉬움', '보통', '중간', '어려움', '매우 어려움'];
+            
+            document.getElementById('detailTitle').textContent = course.name;
+            document.getElementById('detailInfo').innerHTML = `
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 15px;">
+                    <h4 style="margin-bottom: 15px; color: #333;">${course.name}</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div><strong>거리:</strong> ${(course.distance/1000).toFixed(2)}km</div>
+                        <div><strong>난이도:</strong> ${difficultyNames[course.difficulty]}</div>
+                        <div><strong>점 개수:</strong> ${course.points.length}개</div>
+                        <div><strong>생성자:</strong> ${user?.nickname || '익명'}</div>
+                        <div><strong>생성일:</strong> ${new Date(course.createdAt).toLocaleDateString()}</div>
+                        <div><strong>공개:</strong> ${course.isPublic ? '공개' : '비공개'}</div>
+                    </div>
+                    <div><strong>설명:</strong> ${course.description || '설명 없음'}</div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-success" onclick="downloadGPX('${course.id}')">📁 GPX 다운로드</button>
+                        ${course.userId === currentUser?.id ? `<button class="btn btn-secondary" onclick="editCourse('${course.id}')">✏️ 수정</button>` : ''}
+                    </div>
+                </div>
+            `;
+            
+            showScreen('detail');
+            
+            // 상세 지도 초기화
+            setTimeout(() => {
+                const detailMap = new google.maps.Map(document.getElementById("detailMap"), {
+                    zoom: 15,
+                    center: { lat: course.centerLat, lng: course.centerLng },
+                    mapTypeId: 'roadmap'
+                });
+                
+                // 포인트들 표시
+                course.points.forEach((point, index) => {
+                    new google.maps.Marker({
+                        position: { lat: point.lat, lng: point.lng },
+                        map: detailMap,
+                        title: `점 ${index + 1}`,
+                        label: (index + 1).toString()
+                    });
+                });
+                
+                // 폴리라인 그리기
+                const polyline = new google.maps.Polyline({
+                    path: course.points.map(p => ({ lat: p.lat, lng: p.lng })),
+                    geodesic: true,
+                    strokeColor: "#FF0000",
+                    strokeOpacity: 1.0,
+                    strokeWeight: 4,
+                });
+                polyline.setMap(detailMap);
+                
+                // 지도 영역 조정
+                const bounds = new google.maps.LatLngBounds();
+                course.points.forEach(point => bounds.extend({ lat: point.lat, lng: point.lng }));
+                detailMap.fitBounds(bounds);
+            }, 100);
+        }
+        
+        // GPX 다운로드
+        function downloadGPX(courseId) {
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const course = courses.find(c => c.id === courseId);
+            
+            if (!course) {
+                alert('코스를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const now = new Date();
+            let gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="RunningApp" xmlns="http://www.topografix.com/GPX/1/1">
+    <metadata>
+        <name>${course.name}</name>
+        <desc>${course.description || ''}</desc>
+        <time>${course.createdAt}</time>
+    </metadata>
+    <trk>
+        <name>${course.name}</name>
+        <desc>${course.description || ''}</desc>
+        <trkseg>`;
+            
+            course.points.forEach((point, index) => {
+                const time = new Date(now.getTime() + index * 30000); // 30초 간격
+                gpxContent += `
+            <trkpt lat="${point.lat}" lon="${point.lng}">
+                <time>${time.toISOString()}</time>
+            </trkpt>`;
+            });
+            
+            gpxContent += `
+        </trkseg>
+    </trk>
+</gpx>`;
+            
+            // 파일 다운로드
+            const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${course.name.replace(/[^a-z0-9가-힣\s]/gi, '_')}.gpx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert(`${course.name}.gpx 파일이 다운로드되었습니다!`);
+        }
+        
+        // 모든 코스 GPX 일괄 다운로드
+        function downloadAllGPX() {
+            if (!currentUser) return;
+            
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const myCourses = courses.filter(c => c.userId === currentUser.id);
+            
+            if (myCourses.length === 0) {
+                alert('다운로드할 코스가 없습니다.');
+                return;
+            }
+            
+            if (!confirm(`총 ${myCourses.length}개 코스를 다운로드하시겠습니까?`)) {
+                return;
+            }
+            
+            myCourses.forEach((course, index) => {
+                setTimeout(() => downloadGPX(course.id), index * 500); // 0.5초 간격
+            });
+        }
+        
+        // 코스 수정
+        function editCourse(courseId) {
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const course = courses.find(c => c.id === courseId);
+            
+            if (!course || course.userId !== currentUser?.id) {
+                alert('수정 권한이 없습니다.');
+                return;
+            }
+            
+            // 간단한 수정 (이름, 설명, 난이도, 공개여부만)
+            const newName = prompt('코스 이름:', course.name);
+            if (newName === null) return;
+            
+            const newDescription = prompt('코스 설명:', course.description || '');
+            if (newDescription === null) return;
+            
+            const newDifficulty = prompt('난이도 (1-5):', course.difficulty);
+            if (newDifficulty === null) return;
+            
+            const newIsPublic = confirm('공개하시겠습니까?');
+            
+            // 유효성 검사
+            if (!newName.trim()) {
+                alert('코스 이름은 필수입니다.');
+                return;
+            }
+            
+            const difficulty = parseInt(newDifficulty);
+            if (isNaN(difficulty) || difficulty < 1 || difficulty > 5) {
+                alert('난이도는 1-5 사이의 숫자여야 합니다.');
+                return;
+            }
+            
+            // 수정 적용
+            const courseIndex = courses.findIndex(c => c.id === courseId);
+            courses[courseIndex] = {
+                ...course,
+                name: newName.trim(),
+                description: newDescription.trim(),
+                difficulty,
+                isPublic: newIsPublic
+            };
+            
+            saveToStorage(STORAGE_KEYS.COURSES, courses);
+            alert('코스가 수정되었습니다.');
+            
+            // 현재 화면 새로고침
+            if (lastScreen === 'myCourses') {
+                loadMyCourses();
+            }
+        }
+        
+        // 코스 삭제
+        function deleteCourse(courseId) {
+            if (!confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
+            
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const filteredCourses = courses.filter(c => c.id !== courseId);
+            saveToStorage(STORAGE_KEYS.COURSES, filteredCourses);
+            
+            alert('코스가 삭제되었습니다.');
+            loadMyCourses();
+        }
+        
+        // GPX 목록 로드
+        function loadGpxList() {
+            if (!currentUser) return;
+            
+            const container = document.getElementById('gpxList');
+            const countElement = document.getElementById('gpxListCount');
+            
+            container.innerHTML = '<div class="loading">내 코스를 불러오는 중...</div>';
+            
+            const courses = getFromStorage(STORAGE_KEYS.COURSES);
+            const myCourses = courses
+                .filter(c => c.userId === currentUser.id)
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            countElement.textContent = `총 ${myCourses.length}개 코스`;
+            
+            if (myCourses.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">저장된 코스가 없습니다.</p>';
+                return;
+            }
+            
+            const difficultyNames = ['', '쉬움', '보통', '중간', '어려움', '매우 어려움'];
+            
+            container.innerHTML = `<div class="course-list">${myCourses.map(course => `
+                <div class="course-item">
+                    <div class="course-header">
+                        <div class="course-title">${course.name}</div>
+                        <div class="difficulty-badge difficulty-${course.difficulty}">
+                            ${difficultyNames[course.difficulty]}
+                        </div>
+                    </div>
+                    <div class="course-info">
+                        📏 ${(course.distance/1000).toFixed(2)}km | 
+                        📅 ${new Date(course.createdAt).toLocaleDateString()} |
+                        📍 ${course.points.length}개 점
+                    </div>
+                    <p style="margin: 10px 0; color: #666;">${course.description || '설명 없음'}</p>
+                    <div class="course-actions">
+                        <button class="btn btn-success" onclick="downloadGPX('${course.id}')">📁 GPX 다운로드</button>
+                        <button class="btn btn-primary" onclick="viewCourse('${course.id}')">🗺️ 지도에서 보기</button>
+                    </div>
+                </div>
+            `).join('')}</div>`;
+        }
+        
+        // 페이지 로드 시 초기화
+        window.onload = function() {
+            // 저장된 사용자 정보 복원
+            const savedUser = getFromStorage(STORAGE_KEYS.CURRENT_USER);
+            if (savedUser && typeof savedUser === 'object' && savedUser.id) {
+                currentUser = savedUser;
+            }
+            
+            updateUserDisplay();
+            
+            // 로그인된 경우 자동으로 그리기 화면으로
+            if (currentUser) {
+                showScreen('draw');
+            }
+        };
+    </script>
+    
+    <!-- 구글맵 API 로드 -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=geometry&callback=initMap">
+    </script>
+</body>
+</html>

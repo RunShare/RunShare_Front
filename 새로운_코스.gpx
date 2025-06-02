@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="RunningApp" xmlns="http://www.topografix.com/GPX/1/1">
+    <metadata>
+        <n>새로운 코스</n>
+        <time>2025-06-02T04:48:06.366Z</time>
+    </metadata>
+    <trk>
+        <n>새로운 코스</n>
+        <trkseg>
+            <trkpt lat="37.55358722530079" lon="126.91896323680308">
+                <time>2025-06-02T04:48:06.366Z</time>
+            </trkpt>
+            <trkpt lat="37.55499914910346" lon="126.92143086909678">
+                <time>2025-06-02T04:48:36.366Z</time>
+            </trkpt>
+            <trkpt lat="37.552770678845114" lon="126.92422036647227">
+                <time>2025-06-02T04:49:06.366Z</time>
+            </trkpt>
+            <trkpt lat="37.551915289235595" lon="126.92349277082246">
+                <time>2025-06-02T04:49:36.366Z</time>
+            </trkpt>
+            <trkpt lat="37.55063953523162" lon="126.92299402937996">
+                <time>2025-06-02T04:50:06.366Z</time>
+            </trkpt>
+            <trkpt lat="37.55080965467876" lon="126.92044056639779">
+                <time>2025-06-02T04:50:36.366Z</time>
+            </trkpt>
+            <trkpt lat="37.55280002336149" lon="126.9181016801368">
+                <time>2025-06-02T04:51:06.366Z</time>
+            </trkpt>
+            <trkpt lat="37.55334438844498" lon="126.91926039443123">
+                <time>2025-06-02T04:51:36.366Z</time>
+            </trkpt>
+        </trkseg>
+    </trk>
+</gpx>
