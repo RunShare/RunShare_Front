@@ -115,6 +115,7 @@ function App() {
       } else {
         console.error('❌ 코스 삭제 실패:', response.status);
         alert(`코스 삭제 실패: ${response.status}`);
+        console.log('data id', id)
       }
     } catch (error) {
       console.error('❌ 삭제 네트워크 에러:', error);
@@ -200,7 +201,7 @@ function App() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => {
-                    console.log('📝 코스명 입력:', e.target.value);
+                    // console.log('📝 코스명 입력:', e.target.value);
                     setFormData({ ...formData, name: e.target.value });
                   }}
                   placeholder="예: 한강 러닝 코스"
@@ -214,7 +215,7 @@ function App() {
                 <textarea
                   value={formData.content}
                   onChange={(e) => {
-                    console.log('📝 설명 입력:', e.target.value);
+                    // console.log('📝 설명 입력:', e.target.value);
                     setFormData({ ...formData, content: e.target.value });
                   }}
                   placeholder="코스에 대한 상세한 설명을 입력하세요..."
