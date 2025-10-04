@@ -2,12 +2,15 @@
 /node_modules
 /.pnp
 .pnp.js
-
+/npm-debug.log*
 # Testing
 /coverage
 
 # Production
 /build
+/dist
+/out
+
 
 # Environment variables
 .env
@@ -34,3 +37,11 @@ Thumbs.db
 
 # Misc
 .eslintcache
+
+# --------------------
+
+# Sensitive Environment Variables
+.env
+.env.development.local
+.env.test.local
+.env.production.local
