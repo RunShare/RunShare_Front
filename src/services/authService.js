@@ -41,6 +41,15 @@ export const userService = {
   },
 };
 
+/* 
+Class:
+CourseService : 백엔드로부터 코스를 받아옴
+
+Paramemter:
+userId : 조회하는 userId
+lat : 사용자의 현재 위도
+lng : 사용자의 현재 경도
+*/
 export const courseService = {
   getCourses: async (userId, lat, lng, sort = 'distance', page = 0, size = 10) => {
     const response = await api.get('/courses', {
@@ -49,8 +58,29 @@ export const courseService = {
     return response.data;
   },
 
-  getGpxFile: async (courseId) => {
-    const response = await api.get(`/courses/${courseId}/file`);
+  getGpxFile: async (userId, courseId) => {
+    const response = await api.get(`/courses/${courseId}/file`, {
+      params: { userId },
+    });
+    return response.data;
+  },
+
+  deleteCourse: async (userId, courseId) => {
+    const response = await api.delete(`/courses/${courseId}`, {
+      params: { userId },
+    });
+    return response.data;
+  },
+
+  // 코스 생성 API 추가
+  createCourse: async (userId, gpxFile) => {
+    const formData = new FormData();
+    formData.append('userId', userId); // 반드시 'userId'로!
+    formData.append('file', gpxFile); // 반드시 'file'로!
+    
+    const response = await api.post('/courses', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 };

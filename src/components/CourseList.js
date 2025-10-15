@@ -1,7 +1,7 @@
 import React from 'react';
 import './CourseList.css';
 
-function CourseList({ courses, onCourseClick }) {
+function CourseList({ courses, onCourseClick, onDeleteCourse }) {
   if (!courses || courses.length === 0) {
     return <div className="no-courses">추천 코스가 없습니다.</div>;
   }
@@ -18,6 +18,8 @@ function CourseList({ courses, onCourseClick }) {
         return level;
     }
   };
+
+  // const userId = localStorage.getItem('userId');
 
   return (
     <div className="course-list">
@@ -50,6 +52,15 @@ function CourseList({ courses, onCourseClick }) {
           <div className="course-location">
             <span>📍 {course.startLat.toFixed(4)}, {course.startLon.toFixed(4)}</span>
           </div>
+          <button
+            className="delete-button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteCourse(course.gpxId);
+            }}
+          >
+            삭제
+          </button>
         </div>
       ))}
     </div>

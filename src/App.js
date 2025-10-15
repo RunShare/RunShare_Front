@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import MyPage from './pages/MyPage';
 import CoursePage from './pages/CoursePage';
 import CourseDetailPage from './pages/CourseDetailPage';
+import CreateCoursePage from './pages/CreateCoursePage'; // 코스 생성 페이지 import
 import { authService } from './services/authService';
 import './App.css';
 
@@ -32,6 +33,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <CoursePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/course/create"
+            element={
+              <ProtectedRoute>
+                <CreateCoursePage />
               </ProtectedRoute>
             }
           />

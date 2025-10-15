@@ -17,9 +17,10 @@ function CourseDetailPage() {
   }, [courseId]);
 
   const loadGpxData = async () => {
+    const userId = localStorage.getItem('userId');
     try {
       console.log('Fetching GPX for courseId:', courseId);
-      const data = await courseService.getGpxFile(courseId);    
+      const data = await courseService.getGpxFile(userId, courseId);    
       console.log('GPX 데이터 길이:', data.length);
       console.log('GPX 처음 200자:', data.substring(0, 200));
       setGpxData(data);

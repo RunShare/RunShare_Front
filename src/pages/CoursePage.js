@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService, courseService } from '../services/authService';
-import { getCurrentLocation } from '../utils/locationUtils';
+import { courseService, authService } from '../services/authService';
 import CourseList from '../components/CourseList';
 import './CoursePage.css';
 
@@ -25,35 +24,40 @@ function CoursePage() {
   }, [userLocation, sortBy, page]);
 
   const initLocation = async () => {
-    try {
-      const location = await getCurrentLocation();
-      setUserLocation(location);
-    } catch (error) {
-      console.error('Failed to get location:', error);
-      alert('위치 정보를 가져올 수 없습니다.');
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        () => {
+          setUserLocation({ lat: 37.5665, lng: 126.9780 });
+        }
+      );
+    } else {
+      setUserLocation({ lat: 37.5665, lng: 126.9780 });
     }
   };
 
   const loadCourses = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const userId = authService.getCurrentUserId();
+      const userId = localStorage.getItem('userId');
       const data = await courseService.getCourses(
         userId,
         userLocation.lat,
         userLocation.lng,
         sortBy,
-        page,
-        10
+        page
       );
       setCourses(data.content || []);
-      setTotalPages(data.totalPages || 0);
-      setLoading(false);
+      setTotalPages(data.totalPages || 1);
     } catch (error) {
-      console.error('Failed to load courses:', error);
-      alert('코스 목록을 불러오는데 실패했습니다.');
-      setLoading(false);
+      setCourses([]);
     }
+    setLoading(false);
   };
 
   const handleSortChange = (newSort) => {
@@ -67,6 +71,25 @@ function CoursePage() {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
+  };
+
+  const handleDeleteCourse = async (courseId) => {
+    const userId = localStorage.getItem('userId');
+
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+    
+    try {
+      await courseService.deleteCourse(userId, courseId);
+      alert('코스가 삭제되었습니다.');
+      loadCourses();
+    } catch (error) {
+      alert('코스 삭제에 실패했습니다.');
+    }
+  };
+
+  // 코스 생성 메뉴로 이동
+  const handleCreateCourse = () => {
+    navigate('/course/create');
   };
 
   return (
@@ -98,11 +121,21 @@ function CoursePage() {
         </button>
       </div>
 
+      <div className="course-page-header">
+        <button className="create-course-button" onClick={handleCreateCourse}>
+          코스 생성
+        </button>
+      </div>
+
       {loading ? (
         <div className="loading">로딩 중...</div>
       ) : (
         <>
-          <CourseList courses={courses} onCourseClick={handleCourseClick} />
+          <CourseList
+            courses={courses}
+            onCourseClick={handleCourseClick}
+            onDeleteCourse={handleDeleteCourse}
+          />
           
           {totalPages > 1 && (
             <div className="pagination">

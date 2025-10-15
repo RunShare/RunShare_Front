@@ -5,6 +5,7 @@
 }
 
 .course-item {
+  position: relative; /* 🔴 버튼 기준을 카드로 설정 */
   background: white;
   border-radius: 10px;
   padding: 20px;
@@ -89,3 +90,57 @@
   font-size: 18px;
   color: #999;
 }
+
+/* =============================== */
+/* 🔽 추가된 삭제 버튼 스타일 시작 */
+/* =============================== */
+
+.delete-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  opacity: 0; /* 기본은 숨김 */
+  transform: translateY(-4px);
+  pointer-events: none; /* 숨겨진 상태에서는 클릭 방지 */
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 2;
+
+  background: #e57373;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #d32f2f;
+}
+
+/* 카드에 마우스를 올리면 버튼 표시 */
+.course-item:hover .delete-button {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 키보드 접근성: 탭 포커스 시에도 표시 */
+.course-item:has(.delete-button:focus-visible) .delete-button {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* 모바일 환경(hover 불가)에서는 항상 표시 */
+@media (hover: none) and (pointer: coarse) {
+  .delete-button {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+/* =============================== */
+/* 🔼 추가된 삭제 버튼 스타일 끝 */
+/* =============================== */
