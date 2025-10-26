@@ -48,6 +48,23 @@ function LoginPage() {
           <button type="submit" className="login-button">
             로그인
           </button>
+          <button
+            type="button"
+            onClick={() => navigate('/register')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '5px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              marginTop: '10px'
+            }}
+          >
+            회원가입
+          </button>
         </form>
       </div>
     </div>

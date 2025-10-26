@@ -9,6 +9,7 @@ function MyPage() {
     age: '',
     weight: '',
     height: '',
+    gender: 'MALE'  // ✅ 추가
   });
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -56,6 +57,18 @@ function MyPage() {
     navigate('/');
   };
 
+  // 레벨 한글 변환 함수 추가
+  const getLevelText = (level) => {
+    switch(level) {
+      case 'ADVANCED': return '상급';
+      case 'UPPER_INTERMEDIATE': return '중상급';
+      case 'INTERMEDIATE': return '중급';
+      case 'LOWER_INTERMEDIATE': return '중하급';
+      case 'BEGINNER': return '초급';
+      default: return '초급';
+    }
+  };
+
   if (loading) {
     return <div className="loading">로딩 중...</div>;
   }
@@ -75,20 +88,27 @@ function MyPage() {
       </div>
 
       <div className="profile-card">
+        {/* ✅ 레벨 필드 수정 (수정 불가 + 측정 버튼) */}
         <div className="profile-field">
           <label>러닝 레벨</label>
-          {isEditing ? (
-            <select
-              value={profile.level}
-              onChange={(e) => handleChange('level', e.target.value)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ flex: 1 }}>{getLevelText(profile.level)}</span>
+            <button 
+              onClick={() => navigate('/cooper-test')} 
+              className="cooper-button"
+              style={{
+                padding: '8px 16px',
+                background: '#28a745',
+                color: 'white',
+                border: 'none',
+                borderRadius: '5px',
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
             >
-              <option value="BEGINNER">초급</option>
-              <option value="INTERMEDIATE">중급</option>
-              <option value="ADVANCED">고급</option>
-            </select>
-          ) : (
-            <span>{profile.level === 'BEGINNER' ? '초급' : profile.level === 'INTERMEDIATE' ? '중급' : '고급'}</span>
-          )}
+              측정하기
+            </button>
+          </div>
         </div>
 
         <div className="profile-field">
@@ -132,6 +152,22 @@ function MyPage() {
             />
           ) : (
             <span>{profile.height ? `${profile.height} cm` : '미입력'}</span>
+          )}
+        </div>
+
+        {/*성별 필드 */}
+        <div className="profile-field">
+          <label>성별</label>
+          {isEditing ? (
+            <select
+              value={profile.gender || 'MALE'}
+              onChange={(e) => handleChange('gender', e.target.value)}
+            >
+              <option value="MALE">남성</option>
+              <option value="FEMALE">여성</option>
+            </select>
+          ) : (
+            <span>{profile.gender === 'MALE' ? '남성' : '여성'}</span>
           )}
         </div>
 
