@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const mapContainerStyle = {
   width: '100%',
-  height: '400px'
+  height: '100%'
 };
 
 const center = {
@@ -22,11 +22,12 @@ function CooperTestPage() {
   const [distance, setDistance] = useState(0);
   const [path, setPath] = useState([]);
   const [currentPosition, setCurrentPosition] = useState(null);
-  const [heading, setHeading] = useState(0); // ✅ 추가: 이동 방향
+  const [heading, setHeading] = useState(0);
   const watchIdRef = useRef(null);
   const intervalRef = useRef(null);
 
   const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY
   });
 
@@ -43,7 +44,7 @@ function CooperTestPage() {
     return R * c; // 미터 단위
   };
 
-  // ✅ 추가: 방향 계산 함수 (Bearing)
+  // 방향 계산 함수 (Bearing)
   const calculateBearing = (lat1, lon1, lat2, lon2) => {
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
@@ -84,7 +85,6 @@ function CooperTestPage() {
           
           setCurrentPosition(newPos);
           
-          // ✅ 수정: 거리 계산 및 방향 계산
           setPath(prevPath => {
             if (prevPath.length > 0) {
               const lastPos = prevPath[prevPath.length - 1];
@@ -96,7 +96,7 @@ function CooperTestPage() {
               );
               setDistance(prev => Math.round(prev + dist));
               
-              // ✅ 방향 계산
+              // 방향 계산
               const bearing = calculateBearing(
                 lastPos.lat, lastPos.lng,
                 newPos.lat, newPos.lng
@@ -149,7 +149,7 @@ function CooperTestPage() {
     try {
       const userId = localStorage.getItem('userId');
       
-      //프로필 정보 가져와서 사용
+      // 프로필 정보 가져와서 사용
       const profileResponse = await axios.get(`/api/user/${userId}`);
       const profile = profileResponse.data;
       
@@ -187,177 +187,213 @@ function CooperTestPage() {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-gray-200 border-t-black rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">지도를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: '0 auto' }}>
-      {/* 안내 모달 */}
+    <div className="min-h-screen bg-white">
+      {/* Info Modal */}
       {showInfo && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0,0,0,0.7)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: 'white',
-            padding: '40px',
-            borderRadius: '10px',
-            maxWidth: '600px',
-            textAlign: 'center'
-          }}>
-            <h2 style={{ marginBottom: '20px' }}>쿠퍼 테스트란?</h2>
-            <p style={{ lineHeight: '1.8', marginBottom: '20px', textAlign: 'left' }}>
-              별도의 측정장비 없이 <strong>12분간의 달리기</strong>만으로 
-              <strong> VO2max(최대산소섭취량)</strong>을 측정해 운동능력을 평가하는 테스트입니다.
-              <br/><br/>
-              <strong>준비물:</strong> 평탄한 트랙<br/>
-              <strong>목표:</strong> 12분간 달릴 수 있는 최대 거리 측정
-            </p>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-6">
+          <div className="bg-white rounded-3xl p-8 max-w-lg w-full">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-black rounded-full mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">쿠퍼 테스트</h2>
+              <p className="text-gray-600">12분간의 러닝으로 체력 측정</p>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">1</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-gray-900 mb-1">준비</h4>
+                    <p className="text-sm text-gray-600">평탄한 트랙이나 도로에서 준비하세요</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">2</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-gray-900 mb-1">측정</h4>
+                    <p className="text-sm text-gray-600">12분 동안 최대한 멀리 달리세요</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">3</span>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-gray-900 mb-1">결과</h4>
+                    <p className="text-sm text-gray-600">VO2max와 러닝 레벨을 확인하세요</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <button
               onClick={startTest}
-              style={{
-                padding: '15px 40px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                fontSize: '18px',
-                fontWeight: 'bold',
-                cursor: 'pointer'
-              }}
+              className="w-full bg-black text-white py-4 rounded-full font-bold hover:bg-gray-800 transition-all active:scale-95"
             >
-              시작하기
+              테스트 시작
             </button>
           </div>
         </div>
       )}
 
-      <h2 style={{ textAlign: 'center', marginBottom: '20px' }}>쿠퍼 테스트</h2>
-
-      {/* 카운트다운 */}
+      {/* Countdown */}
       {testState === 'countdown' && (
-        <div style={{
-          fontSize: '120px',
-          fontWeight: 'bold',
-          textAlign: 'center',
-          color: '#667eea',
-          marginTop: '100px'
-        }}>
-          {countdown === 0 ? 'GO!' : countdown}
+        <div className="fixed inset-0 bg-white flex items-center justify-center z-40">
+          <div className="text-center">
+            <div className="text-[200px] font-bold text-black mb-4 animate-pulse">
+              {countdown === 0 ? 'GO!' : countdown}
+            </div>
+            <p className="text-xl text-gray-600">준비하세요...</p>
+          </div>
         </div>
       )}
 
-      {/* 달리기 중 */}
+      {/* Running/Finished State */}
       {(testState === 'running' || testState === 'finished') && (
-        <>
-          {/* 타이머 & 거리 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-around',
-            marginBottom: '20px',
-            padding: '20px',
-            background: '#f8f9fa',
-            borderRadius: '10px'
-          }}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '14px', color: '#666' }}>남은 시간</div>
-              <div style={{ fontSize: '36px', fontWeight: 'bold', color: testState === 'finished' ? '#dc3545' : '#667eea' }}>
-                {formatTime(timeLeft)}
+        <div className="h-screen flex flex-col">
+          {/* Header with Stats */}
+          <div className="relative z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100">
+            <div className="px-6 py-4">
+              <div className="flex items-center justify-between mb-4">
+                <button 
+                  onClick={() => {
+                    if (window.confirm('테스트를 종료하시겠습니까?')) {
+                      finishTest();
+                      navigate('/mypage');
+                    }
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+                <h2 className="text-lg font-bold text-gray-900">쿠퍼 테스트</h2>
+                <div className="w-10"></div>
               </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '14px', color: '#666' }}>달린 거리</div>
-              <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#28a745' }}>
-                {distance}m
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Timer */}
+                <div className="bg-gray-50 rounded-2xl p-6 text-center">
+                  <p className="text-sm text-gray-600 mb-2">남은 시간</p>
+                  <p className={`text-4xl font-bold ${testState === 'finished' ? 'text-red-600' : 'text-black'}`}>
+                    {formatTime(timeLeft)}
+                  </p>
+                </div>
+
+                {/* Distance */}
+                <div className="bg-gray-50 rounded-2xl p-6 text-center">
+                  <p className="text-sm text-gray-600 mb-2">달린 거리</p>
+                  <p className="text-4xl font-bold text-green-600">
+                    {distance}m
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* ✅ 지도 (Polyline + Marker 추가) */}
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={currentPosition || center}
-            zoom={15}
-            options={{
-              zoomControl: true,
-              streetViewControl: false,
-              mapTypeControl: false,
-              fullscreenControl: false
-            }}
-          >
-            {/* 달린 경로 (빨간 선) */}
-            {path.length > 0 && (
-              <Polyline
-                path={path}
-                options={{
-                  strokeColor: '#FF0000',
-                  strokeOpacity: 1.0,
-                  strokeWeight: 4
-                }}
-              />
-            )}
-            
-            {/* ✅ 현재 위치 마커 (방향 표시 화살표) */}
-            {currentPosition && (
-              <Marker
-                position={currentPosition}
-                icon={{
-                  path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                  scale: 6,
-                  fillColor: '#4285F4',
-                  fillOpacity: 1,
-                  strokeColor: '#FFFFFF',
-                  strokeWeight: 2,
-                  rotation: heading  // 이동 방향에 따라 회전
-                }}
-                zIndex={1000}
-              />
-            )}
-          </GoogleMap>
+          {/* Map */}
+          <div className="flex-1 relative">
+            <GoogleMap
+              mapContainerStyle={mapContainerStyle}
+              center={currentPosition || center}
+              zoom={16}
+              options={{
+                zoomControl: true,
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: false,
+                disableDefaultUI: false
+              }}
+            >
+              {/* Path */}
+              {path.length > 0 && (
+                <Polyline
+                  path={path}
+                  options={{
+                    strokeColor: '#000000',
+                    strokeOpacity: 1.0,
+                    strokeWeight: 5
+                  }}
+                />
+              )}
+              
+              {/* Current Position Marker */}
+              {currentPosition && (
+                <Marker
+                  position={currentPosition}
+                  icon={{
+                    path: window.google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                    scale: 7,
+                    fillColor: '#000000',
+                    fillOpacity: 1,
+                    strokeColor: '#FFFFFF',
+                    strokeWeight: 2,
+                    rotation: heading
+                  }}
+                  zIndex={1000}
+                />
+              )}
+            </GoogleMap>
 
-          {/* 완료 후 버튼 */}
-          {testState === 'finished' && (
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-              <button
-                onClick={saveResult}
-                style={{
-                  padding: '15px 40px',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  fontSize: '18px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  marginRight: '10px'
-                }}
-              >
-                결과 저장
-              </button>
-              <button
-                onClick={() => navigate('/mypage')}
-                style={{
-                  padding: '15px 40px',
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  fontSize: '18px',
-                  cursor: 'pointer'
-                }}
-              >
-                취소
-              </button>
-            </div>
-          )}
-        </>
+            {/* Finished Overlay */}
+            {testState === 'finished' && (
+              <div className="absolute inset-0 bg-black/70 flex items-center justify-center p-6 z-20">
+                <div className="bg-white rounded-3xl p-8 max-w-md w-full text-center">
+                  <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500 rounded-full mb-6">
+                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                    </svg>
+                  </div>
+                  
+                  <h2 className="text-3xl font-bold text-gray-900 mb-2">완료!</h2>
+                  <p className="text-gray-600 mb-8">12분 동안 {distance}m를 달렸습니다</p>
+
+                  <div className="space-y-3">
+                    <button
+                      onClick={saveResult}
+                      className="w-full bg-black text-white py-4 rounded-full font-bold hover:bg-gray-800 transition-all active:scale-95"
+                    >
+                      결과 저장하고 레벨 확인
+                    </button>
+                    <button
+                      onClick={() => navigate('/mypage')}
+                      className="w-full bg-gray-100 text-gray-900 py-4 rounded-full font-bold hover:bg-gray-200 transition-all active:scale-95"
+                    >
+                      취소
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

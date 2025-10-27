@@ -4,11 +4,11 @@ import LoginPage from './pages/LoginPage';
 import MyPage from './pages/MyPage';
 import CoursePage from './pages/CoursePage';
 import CourseDetailPage from './pages/CourseDetailPage';
-import CreateCoursePage from './pages/CreateCoursePage'; // 코스 생성 페이지 import
+import CreateCoursePage from './pages/CreateCoursePage';
 import { authService } from './services/authService';
 import RegisterPage from './pages/RegisterPage';
 import CooperTestPage from './pages/CooperTestPage';
-import './App.css';
+// import './App.css'; // ⚠️ CSS 파일은 더 이상 필요 없습니다 (Tailwind 사용)
 
 // Protected Route Component
 function ProtectedRoute({ children }) {
