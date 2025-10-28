@@ -2,6 +2,10 @@
 FROM node:alpine AS builder
 WORKDIR /usr/src/app
 
+# 환경변수 주입
+ARG REACT_APP_GOOGLE_MAPS_API_KEY
+ENV REACT_APP_GOOGLE_MAPS_API_KEY=$REACT_APP_GOOGLE_MAPS_API_KEY
+
 # 패키지 설치
 COPY package*.json ./
 RUN npm ci --no-audit --no-fund
