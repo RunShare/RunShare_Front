@@ -1,5 +1,5 @@
 # 1) build 단계
-FROM node:alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /usr/src/app
 
 # 환경변수 주입
