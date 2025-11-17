@@ -1,0 +1,74 @@
+.create-course-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.create-course-container h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: #1976d2;
+}
+
+.create-course-form {
+  display: flex;
+  flex-direction: column;
+  gap: 22px; /* 각 입력칸 사이 간격을 넓힘 */
+}
+
+.create-course-form > div {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.create-course-form label {
+  font-weight: 500;
+  color: #1976d2;
+  margin-bottom: 2px;
+}
+
+.create-course-form input[type="text"],
+.create-course-form textarea,
+.create-course-form select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #bdbdbd;
+  font-size: 1rem;
+  background: #f7f9fc;
+}
+
+.create-course-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.create-course-form input[type="file"] {
+  margin-top: 6px;
+}
+
+.create-course-form .error {
+  color: #d32f2f;
+  font-size: 0.98rem;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.create-course-form button[type="submit"] {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 0;
+  font-size: 1.05rem;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: background 0.2s;
+}
+.create-course-form button[type="submit"]:hover {
+  background: #1565c0;
+}
